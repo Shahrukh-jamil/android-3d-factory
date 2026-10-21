@@ -1,0 +1,126 @@
+name: Build Frontier 3D APK Fast
+
+on:
+  workflow_dispatch:
+    inputs:
+      gist_id:
+        description: 'Gist ID'
+        required: true
+        type: string
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.10' }
+      - run: pip install requests
+      - run: python injector.py ${{ github.event.inputs.gist_id }}
+      - uses: actions/setup-java@v4
+        with: { java-version: '21', distribution: 'temurin' }
+
+      - name: Setup Gradle 8.7
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+
+      - name: Decode Keystore Safely with Python
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          FALLBACK_B64: "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"
+        run: |
+          python3 -c "
+          import os, base64
+          raw = os.environ.get('KEYSTORE_BASE64', '').strip().replace('\\n', '').replace('\\r', '').replace(' ', '')
+          if not raw:
+              raw = os.environ.get('FALLBACK_B64', '').strip()
+          missing_padding = len(raw) % 4
+          if missing_padding:
+              raw += '=' * (4 - missing_padding)
+          with open('app/release-key.jks', 'wb') as f:
+              f.write(base64.b64decode(raw))
+          "
+
+      - name: Build Sideload APK Only (Ultra Fast)
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          echo "org.gradle.jvmargs=-Xmx4096m -Dfile.encoding=UTF-8" >> gradle.properties
+          echo "org.gradle.parallel=true" >> gradle.properties
+          echo "org.gradle.caching=true" >> gradle.properties
+          echo "android.useAndroidX=true" >> gradle.properties
+          echo "android.nonTransitiveRClass=true" >> gradle.properties
+          gradle assembleRelease -Pandroid.useAndroidX=true
+
+      - name: Upload APK to GitHub Artifacts (Always Guaranteed)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.APP_NAME }}-APK
+          path: app/build/outputs/apk/release/app-release.apk
+          retention-days: 7
+
+      - name: Multi-Cloud File Uploads (11 Cloud Hosts)
+        run: |
+          APK_PATH="app/build/outputs/apk/release/app-release.apk"
+          FINAL_APK_NAME="${APP_NAME:-App}.apk"
+          cp "$APK_PATH" "$FINAL_APK_NAME"
+
+          echo "### 📱 Download Links for ${{ env.APP_NAME }}" >> $GITHUB_STEP_SUMMARY
+
+          log_upload() {
+            local service="$1"
+            local url="$2"
+            if [[ -n "$url" && "$url" =~ ^https?:// ]]; then
+              echo "✅ $service: $url"
+              echo "- **$service:** [$url]($url)" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "❌ $service: Failed"
+            fi
+          }
+
+          # 1. Catbox.moe
+          URL_CATBOX=$(curl -s -A "Mozilla/5.0" -F "reqtype=fileupload" -F "fileToUpload=@$FINAL_APK_NAME" https://catbox.moe/user/api.php 2>/dev/null || true)
+          log_upload "Catbox.moe" "$URL_CATBOX"
+
+          # 2. Litterbox (Catbox 72h temporary service)
+          URL_LITTER=$(curl -s -A "Mozilla/5.0" -F "reqtype=fileupload" -F "time=72h" -F "fileToUpload=@$FINAL_APK_NAME" https://litterbox.catbox.moe/resources/internals/api.php 2>/dev/null || true)
+          log_upload "Litterbox" "$URL_LITTER"
+
+          # 3. Temp.sh
+          URL_TEMP=$(curl -s -A "Mozilla/5.0" -F "file=@$FINAL_APK_NAME" https://temp.sh/upload 2>/dev/null || true)
+          log_upload "Temp.sh" "$URL_TEMP"
+
+          # 4. Transfer.sh
+          URL_TRANSFER=$(curl -s -A "Mozilla/5.0" -H "Content-Type: application/vnd.android.package-archive" --upload-file "$FINAL_APK_NAME" "https://transfer.sh/$FINAL_APK_NAME" 2>/dev/null || true)
+          log_upload "Transfer.sh" "$URL_TRANSFER"
+
+          # 5. Free.Keep.sh
+          URL_KEEP=$(curl -s -A "Mozilla/5.0" --upload-file "$FINAL_APK_NAME" https://free.keep.sh 2>/dev/null || true)
+          log_upload "Keep.sh" "$URL_KEEP"
+
+          # 6. File.io
+          URL_FILEIO=$(curl -s -A "Mozilla/5.0" -F "file=@$FINAL_APK_NAME" "https://file.io/?expires=7d" 2>/dev/null | python3 -c "import sys, json; print(json.load(sys.stdin).get('link',''))" 2>/dev/null || true)
+          log_upload "File.io" "$URL_FILEIO"
+
+          # 7. Uguu.se
+          URL_UGUU=$(curl -s -A "Mozilla/5.0" -F "files[]=@$FINAL_APK_NAME" "https://uguu.se/upload?output=text" 2>/dev/null || true)
+          log_upload "Uguu.se" "$URL_UGUU"
+
+          # 8. BashUpload.com
+          URL_BASH=$(curl -s -A "Mozilla/5.0" -T "$FINAL_APK_NAME" https://bashupload.com/ 2>/dev/null | grep -o 'https://bashupload.com/[^ ]*' | head -n 1 || true)
+          log_upload "BashUpload" "$URL_BASH"
+
+          # 9. Oshi.at
+          URL_OSHI=$(curl -s -A "Mozilla/5.0" -T "$FINAL_APK_NAME" https://oshi.at 2>/dev/null | grep -o 'https://oshi.at/[^ ]*' | head -n 1 || true)
+          log_upload "Oshi.at" "$URL_OSHI"
+
+          # 10. Envs.sh
+          URL_ENVS=$(curl -s -A "Mozilla/5.0" -F "file=@$FINAL_APK_NAME" https://envs.sh 2>/dev/null || true)
+          log_upload "Envs.sh" "$URL_ENVS"
+
+          # 11. Pixeldrain.com
+          URL_PIXELDRAIN=$(curl -s -A "Mozilla/5.0" -X PUT -T "$FINAL_APK_NAME" "https://pixeldrain.com/api/file/$FINAL_APK_NAME" 2>/dev/null | python3 -c "import sys, json; d=json.load(sys.stdin); print('https://pixeldrain.com/u/' + d['id']) if d.get('success') else None" 2>/dev/null || true)
+          log_upload "Pixeldrain" "$URL_PIXELDRAIN"
